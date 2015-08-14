@@ -1,0 +1,10 @@
+# Ignore general
+/.*
+!.gitignore
+*~
+._*
+*.bak
+
+bin/*
+build3/*
+Extras/lib/*
