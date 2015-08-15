@@ -764,7 +764,6 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 			transformedVertices.resize(numVertices*9);
 			for (int i=0;i<numVertices;i++)
 			{
-
 				btVector3 vert;
 				vert.setValue(textured_detailed_sphere_vertices[i*9+0],
 					textured_detailed_sphere_vertices[i*9+1],

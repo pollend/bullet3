@@ -183,7 +183,8 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 						btTransform childWorldTrans = parentTransform * compound->getChildTransform(i);
 						CollisionShape2TriangleMesh(compound->getChildShape(i),childWorldTrans,vertexPositions,vertexNormals,indicesOut);
 					}
-				} else
+				}
+				else
 				{
 					btAssert(0);
 				}

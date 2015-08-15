@@ -27,8 +27,12 @@ subject to the following restrictions:
 ATTRIBUTE_ALIGNED16(struct) btVoxelInfo
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
-	/// Whether there is any collision content to this voxel. If false, then no other information is required
-	bool				m_colliding;
+	/// Whether this voxel can be hit by ray traces
+	bool				m_tracable;
+	/// Whether the voxel blocks rigid bodies
+	bool				m_blocking;
+	/// If the voxel is neither tracable nor blocking, the remaining information can be left blank
+
 	/// This id is used to detect when a voxel has changed, dropping and recalculating the physics interactions. It should uniquely identify the collision shape.
 	/// It is somewhat optional, even with the same id the collision algorithm will attempt to detect changes
 	long				m_voxelTypeId;
@@ -38,8 +42,7 @@ ATTRIBUTE_ALIGNED16(struct) btVoxelInfo
 	btCollisionShape*	m_collisionShape;
 	/// The offset of the shape from the center of the voxel
 	btVector3			m_collisionOffset;
-	/// Whether the voxel blocks rigid bodies
-	bool				m_blocking;
+	
 	/// The friction of the voxel
 	btScalar			m_friction;
 	/// The resititution (bounciness) of the voxel
