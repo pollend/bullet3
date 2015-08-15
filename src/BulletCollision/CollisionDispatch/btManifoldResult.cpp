@@ -24,11 +24,12 @@ ContactAddedCallback		gContactAddedCallback=0;
 
 
 
-btScalar	btManifoldResult::calculateCombinedRollingFriction(const btCollisionObject* body0,const btCollisionObject* body1)
+///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+inline btScalar	calculateCombinedRollingFriction(const btCollisionObjectWrapper* body0,const btCollisionObjectWrapper* body1)
 {
-	btScalar friction = body0->getRollingFriction() * body1->getFriction() + body1->getRollingFriction() * body0->getFriction();
+    btScalar friction = body0->getRollingFriction() * body1->getRollingFriction();
 
-	const btScalar MAX_FRICTION  = btScalar(10.);
+    const btScalar MAX_FRICTION  = btScalar(10.);
 	if (friction < -MAX_FRICTION)
 		friction = -MAX_FRICTION;
 	if (friction > MAX_FRICTION)
@@ -50,7 +51,7 @@ btScalar	btManifoldResult::calculateCombinedSpinningFriction(const btCollisionOb
 }
 
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
-btScalar	btManifoldResult::calculateCombinedFriction(const btCollisionObject* body0,const btCollisionObject* body1)
+btScalar	btManifoldResult::calculateCombinedFriction(const btCollisionObjectWrapper* body0,const btCollisionObjectWrapper* body1)
 {
 	btScalar friction = body0->getFriction() * body1->getFriction();
 
@@ -63,7 +64,26 @@ btScalar	btManifoldResult::calculateCombinedFriction(const btCollisionObject* bo
 
 }
 
-btScalar	btManifoldResult::calculateCombinedRestitution(const btCollisionObject* body0,const btCollisionObject* body1)
+btScalar	btManifoldResult::calculateCombinedRestitution(const btCollisionObjectWrapper* body0,const btCollisionObjectWrapper* body1)
+{
+	return body0->getRestitution() * body1->getRestitution();
+}
+
+///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
+btScalar	btManifoldResult::calculateCombinedFriction(const btCollisionObject* body0, const btCollisionObject* body1)
+{
+	btScalar friction = body0->getFriction() * body1->getFriction();
+
+	const btScalar MAX_FRICTION = btScalar(10.);
+	if (friction < -MAX_FRICTION)
+		friction = -MAX_FRICTION;
+	if (friction > MAX_FRICTION)
+		friction = MAX_FRICTION;
+	return friction;
+
+}
+
+btScalar	btManifoldResult::calculateCombinedRestitution(const btCollisionObject* body0, const btCollisionObject* body1)
 {
 	return body0->getRestitution() * body1->getRestitution();
 }

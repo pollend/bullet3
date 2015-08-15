@@ -27,13 +27,24 @@ subject to the following restrictions:
 ATTRIBUTE_ALIGNED16(struct) btVoxelInfo
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
+	/// Whether there is any collision content to this voxel. If false, then no other information is required
 	bool				m_colliding;
+	/// This id is used to detect when a voxel has changed, dropping and recalculating the physics interactions. It should uniquely identify the collision shape.
+	/// It is somewhat optional, even with the same id the collision algorithm will attempt to detect changes
+	long				m_voxelTypeId;
+	/// Generic location for additional information to be attached to the voxel, which will be returned by raycasts/collisions
 	void*				m_userPointer;
+	/// The shape of the voxel
 	btCollisionShape*	m_collisionShape;
+	/// The offset of the shape from the center of the voxel
 	btVector3			m_collisionOffset;
+	/// Whether the voxel blocks rigid bodies
 	bool				m_blocking;
+	/// The friction of the voxel
 	btScalar			m_friction;
+	/// The resititution (bounciness) of the voxel
 	btScalar			m_restitution;
+	/// The rolling friction of the voxel
 	btScalar			m_rollingFriction;
 };
 
@@ -91,7 +102,7 @@ public:
 		return "Voxel";
 	}
 
-	virtual btVoxelContentProvider* getContentProvider() {
+	virtual btVoxelContentProvider* getContentProvider() const {
 		return m_contentProvider;
 	}
 	

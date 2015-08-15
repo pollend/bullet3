@@ -173,6 +173,11 @@ class btManifoldPoint
 				return m_appliedImpulse;
 			}
 
+			btScalar	getCombinedRestitution() const
+			{
+				return m_combinedRestitution;
+			}
+
 			
 
 	};
