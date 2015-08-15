@@ -413,7 +413,11 @@ static void createCollisionShapeGraphicsObjectInternal(btCollisionShape* collisi
 						btTransform childWorldTrans = parentTransform * compound->getChildTransform(i);
 						createCollisionShapeGraphicsObjectInternal(compound->getChildShape(i),childWorldTrans,verticesOut,indicesOut);
 					}
-				} else
+				}
+				else if (collisionShape->isVoxel()) {
+					// Probably can't do anything here, but isn't an error
+				}
+				else
 				{
 					btAssert(0);
 				}

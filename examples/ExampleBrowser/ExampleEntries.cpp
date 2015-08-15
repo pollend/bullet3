@@ -9,6 +9,7 @@
 #include "../RenderingExamples/RaytracerSetup.h"
 #include "../ForkLift/ForkLiftDemo.h"
 #include "../BasicDemo/BasicExample.h"
+#include "../VoxelDemo/VoxelDemo.h"
 #include "../Planar2D/Planar2D.h"
 #include "../Benchmarks/BenchmarkDemo.h"
 #include "../Importers/ImportObjDemo/ImportObjExample.h"
@@ -100,7 +101,7 @@ static ExampleEntry gDefaultExamples[]=
 	
 	ExampleEntry(1,"Gyroscopic", "Show the Dzhanibekov effect using various settings of the gyroscopic term. You can select the gyroscopic term computation using btRigidBody::setFlags, with arguments BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT (using explicit integration, which adds energy and can lead to explosions), BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD, BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY. If you don't set any of these flags, there is no gyroscopic term used.", GyroscopicCreateFunc),
 
-
+	ExampleEntry(1,"Voxel Demo","Create some rigid bodies using box collision shapes to collide with a voxel world. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", VoxelDemoCreateFunc),
 	
 
 	ExampleEntry(0,"MultiBody"),

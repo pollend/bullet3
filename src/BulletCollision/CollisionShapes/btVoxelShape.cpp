@@ -17,7 +17,7 @@ subject to the following restrictions:
 #include "btCollisionShape.h"
 
 btVoxelShape::btVoxelShape(btVoxelContentProvider* contentProvider, btVector3& aabbMin, btVector3& aabbMax)
-: m_localAabbMin(aabbMin),
+: m_contentProvider(contentProvider), m_localAabbMin(aabbMin),
 m_localAabbMax(aabbMax),
 m_collisionMargin(btScalar(0.)),
 m_localScaling(btScalar(1.),btScalar(1.),btScalar(1.))
