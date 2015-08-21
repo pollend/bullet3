@@ -49,6 +49,30 @@ ATTRIBUTE_ALIGNED16(struct) btVoxelInfo
 	btScalar			m_restitution;
 	/// The rolling friction of the voxel
 	btScalar			m_rollingFriction;
+
+	/**@brief No initialization constructor */
+	SIMD_FORCE_INLINE btVoxelInfo()
+	{
+	}
+
+	/**@brief Constructor from scalars
+	* @param x X value
+	* @param y Y value
+	* @param z Z value
+	*/
+	SIMD_FORCE_INLINE btVoxelInfo(const bool& _traceable, const bool& _blocking, const long& _voxelTypeId, void* const _userPointer, btCollisionShape* const _collisionShape, 
+		const btVector3& _collisionOffset, const btScalar& _friction, const btScalar& _restitution, const btScalar& _rollingFriction)
+	{
+		m_tracable = _traceable;
+		m_blocking = _blocking;
+		m_voxelTypeId = _voxelTypeId;
+		m_userPointer = _userPointer;
+		m_collisionShape = _collisionShape;
+		m_collisionOffset = _collisionOffset;
+		m_friction = _friction;
+		m_restitution = _restitution;
+		m_rollingFriction = _rollingFriction;
+	}
 };
 
 /// Provider of voxel information for a given voxel position

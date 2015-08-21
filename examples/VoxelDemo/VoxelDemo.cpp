@@ -55,6 +55,7 @@ struct VoxelWorld : public btVoxelContentProvider
 
 	VoxelWorld() {
 		emptyInfo.m_blocking = false;
+		emptyInfo.m_tracable = false;
 		filledInfo.m_blocking = true;
 		filledInfo.m_voxelTypeId = 1;
 		filledInfo.m_tracable = true;
