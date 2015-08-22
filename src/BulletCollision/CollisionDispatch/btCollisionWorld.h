@@ -321,25 +321,31 @@ public:
 
 	struct LocalConvexResult
 	{
-		LocalConvexResult(const btCollisionObject*	hitCollisionObject, 
+		LocalConvexResult(const btCollisionObject*	hitCollisionObject,
+			const btCollisionShape* hitCollisionShape,
 			LocalShapeInfo*	localShapeInfo,
 			const btVector3&		hitNormalLocal,
 			const btVector3&		hitPointLocal,
-			btScalar hitFraction
+			btScalar hitFraction,
+			const void* userPointer
 			)
 		:m_hitCollisionObject(hitCollisionObject),
+		m_hitCollisionShape(hitCollisionShape),
 		m_localShapeInfo(localShapeInfo),
 		m_hitNormalLocal(hitNormalLocal),
 		m_hitPointLocal(hitPointLocal),
-		m_hitFraction(hitFraction)
+		m_hitFraction(hitFraction),
+		m_userPointer(userPointer)
 		{
 		}
 
 		const btCollisionObject*		m_hitCollisionObject;
+		const btCollisionShape*			m_hitCollisionShape;
 		LocalShapeInfo*			m_localShapeInfo;
 		btVector3				m_hitNormalLocal;
 		btVector3				m_hitPointLocal;
 		btScalar				m_hitFraction;
+		const void*				m_userPointer;
 	};
 
 	///RayResultCallback is used to report new raycast results

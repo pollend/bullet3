@@ -632,7 +632,7 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 				for (; steps > 0; --steps) {
 					btVoxelInfo childInfo = contentProvider->getVoxel(currentVox[0], currentVox[1], currentVox[2]);
 					if (childInfo.m_tracable) {
-						btVector3 pos(currentVox[0], currentVox[1], currentVox[2]);
+						btVector3 pos(static_cast <btScalar> (currentVox[0]), static_cast <btScalar> (currentVox[1]), static_cast <btScalar> (currentVox[2]));
 						pos += childInfo.m_collisionOffset;
 
 						btTransform childTransform(btQuaternion(0, 0, 0, 1), pos);
@@ -710,10 +710,12 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 					btCollisionWorld::LocalConvexResult localConvexResult
 						(
 						colObjWrap->getCollisionObject(),
+						colObjWrap->getCollisionShape(),
 						0,
 						castResult.m_normal,
 						castResult.m_hitPoint,
-						castResult.m_fraction
+						castResult.m_fraction,
+						colObjWrap->getUserPointer()
 						);
 
 					bool normalInWorldSpace = true;
@@ -741,13 +743,16 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 					btCollisionWorld::ConvexResultCallback* m_resultCallback;
 					const btCollisionObject*	m_collisionObject;
 					btTriangleMeshShape*	m_triangleMesh;
+					const void * m_userPointer;
 
 					BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
-						btCollisionWorld::ConvexResultCallback* resultCallback, const btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld):
+						btCollisionWorld::ConvexResultCallback* resultCallback, const btCollisionObject* collisionObject,btTriangleMeshShape*	triangleMesh, const btTransform& triangleToWorld,
+						const void* userPointer):
 					btTriangleConvexcastCallback(castShape, from,to, triangleToWorld, triangleMesh->getMargin()),
 						m_resultCallback(resultCallback),
 						m_collisionObject(collisionObject),
-						m_triangleMesh(triangleMesh)
+						m_triangleMesh(triangleMesh),
+						m_userPointer(userPointer)
 					{
 					}
 
@@ -762,10 +767,12 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 
 							btCollisionWorld::LocalConvexResult convexResult
 								(m_collisionObject,
+								m_triangleMesh,
 								&shapeInfo,
 								hitNormalLocal,
 								hitPointLocal,
-								hitFraction);
+								hitFraction,
+								m_userPointer);
 
 							bool	normalInWorldSpace = true;
 
@@ -777,7 +784,7 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 
 				};
 
-				BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,colObjWrap->getCollisionObject(),triangleMesh, colObjWorldTransform);
+				BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,colObjWrap->getCollisionObject(),triangleMesh, colObjWorldTransform, colObjWrap->getUserPointer());
 				tccb.m_hitFraction = resultCallback.m_closestHitFraction;
 				tccb.m_allowedPenetration = allowedPenetration;
 				btVector3 boxMinLocal, boxMaxLocal;
@@ -805,11 +812,12 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 								btCollisionWorld::LocalConvexResult localConvexResult
 									(
 									colObjWrap->getCollisionObject(),
+									planeShape,
 									0,
 									castResult.m_normal,
 									castResult.m_hitPoint,
-									castResult.m_fraction
-									);
+									castResult.m_fraction,
+									colObjWrap->getUserPointer());
 
 								bool normalInWorldSpace = true;
 								resultCallback.addSingleResult(localConvexResult, normalInWorldSpace);
@@ -833,13 +841,16 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 						btCollisionWorld::ConvexResultCallback* m_resultCallback;
 						const btCollisionObject*	m_collisionObject;
 						btConcaveShape*	m_triangleMesh;
+						const void* m_userPointer;
 
 						BridgeTriangleConvexcastCallback(const btConvexShape* castShape, const btTransform& from,const btTransform& to,
-							btCollisionWorld::ConvexResultCallback* resultCallback, const btCollisionObject* collisionObject,btConcaveShape*	triangleMesh, const btTransform& triangleToWorld):
+							btCollisionWorld::ConvexResultCallback* resultCallback, const btCollisionObject* collisionObject,btConcaveShape*	triangleMesh, const btTransform& triangleToWorld, 
+							const void* userPointer):
 						btTriangleConvexcastCallback(castShape, from,to, triangleToWorld, triangleMesh->getMargin()),
 							m_resultCallback(resultCallback),
 							m_collisionObject(collisionObject),
-							m_triangleMesh(triangleMesh)
+							m_triangleMesh(triangleMesh),
+							m_userPointer(userPointer)
 						{
 						}
 
@@ -854,10 +865,12 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 
 								btCollisionWorld::LocalConvexResult convexResult
 									(m_collisionObject,
+									m_triangleMesh,
 									&shapeInfo,
 									hitNormalLocal,
 									hitPointLocal,
-									hitFraction);
+									hitFraction,
+									m_userPointer);
 
 								bool	normalInWorldSpace = true;
 
@@ -868,7 +881,7 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 
 					};
 
-					BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,colObjWrap->getCollisionObject(),concaveShape, colObjWorldTransform);
+					BridgeTriangleConvexcastCallback tccb(castShape, convexFromTrans,convexToTrans,&resultCallback,colObjWrap->getCollisionObject(),concaveShape, colObjWorldTransform, colObjWrap->getUserPointer());
 					tccb.m_hitFraction = resultCallback.m_closestHitFraction;
 					tccb.m_allowedPenetration = allowedPenetration;
 					btVector3 boxMinLocal, boxMaxLocal;
@@ -995,6 +1008,45 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 						const btCollisionShape* childCollisionShape = compoundShape->getChildShape(i);
 						btTransform childTrans = compoundShape->getChildTransform(i);
 						callback.ProcessChild(i, childTrans, childCollisionShape);
+					}
+				}
+			}
+			else {
+				if (collisionShape->isVoxel()) {
+					const btVoxelShape* voxelShape = static_cast<const btVoxelShape*>(collisionShape);
+					const btVoxelContentProvider* contentProvider = voxelShape->getContentProvider();
+
+					btVector3 minAABBfrom;
+					btVector3 maxAABBfrom;
+					btVector3 minAABBto;
+					btVector3 maxAABBto;
+					castShape->getAabb(convexFromTrans, minAABBfrom, maxAABBfrom);
+					castShape->getAabb(convexToTrans, minAABBto, maxAABBto);
+
+					minAABBfrom.setMin(minAABBto);
+					maxAABBfrom.setMax(maxAABBto);
+					
+					int min[3];
+					int max[3];
+					for (int i = 0; i < 3; ++i) {
+						min[i] = static_cast <int> (floor(minAABBfrom[i] + 0.5f));
+						max[i] = static_cast <int> (floor(maxAABBfrom[i] + 0.5f));
+					}
+
+					for (int x = min[0]; x < max[0]; ++x) {
+						for (int y = min[1]; y < max[1]; ++y) {
+							for (int z = min[2]; y < max[2]; ++z) {
+								btVoxelInfo info = contentProvider->getVoxel(x, y, z);
+								if (info.m_blocking) {
+									btVector3 pos(static_cast <btScalar>(x), static_cast <btScalar> (y), static_cast<btScalar> (z));
+									pos += info.m_collisionOffset;
+									btTransform voxelTransform(btQuaternion(0, 0, 0, 1), pos);
+									btCollisionObjectWrapper tmpOb(colObjWrap, info.m_collisionShape, colObjWrap->getCollisionObject(), voxelTransform, -1, -1, info.m_userPointer, info.m_friction, info.m_restitution, info.m_rollingFriction);
+									
+									objectQuerySingleInternal(castShape, convexFromTrans, convexToTrans, &tmpOb, resultCallback, allowedPenetration);
+								}
+							}
+						}
 					}
 				}
 			}
