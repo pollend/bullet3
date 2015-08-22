@@ -1033,9 +1033,9 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 						max[i] = static_cast <int> (floor(maxAABBfrom[i] + 0.5f));
 					}
 
-					for (int x = min[0]; x < max[0]; ++x) {
-						for (int y = min[1]; y < max[1]; ++y) {
-							for (int z = min[2]; y < max[2]; ++z) {
+					for (int x = min[0]; x <= max[0]; ++x) {
+						for (int y = min[1]; y <= max[1]; ++y) {
+							for (int z = min[2]; z <= max[2]; ++z) {
 								btVoxelInfo info = contentProvider->getVoxel(x, y, z);
 								if (info.m_blocking) {
 									btVector3 pos(static_cast <btScalar>(x), static_cast <btScalar> (y), static_cast<btScalar> (z));
