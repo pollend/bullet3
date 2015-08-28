@@ -87,7 +87,7 @@ void VoxelDemo::initPhysics()
 
 	btVoxelContentProvider* provider = new VoxelWorld();
 
-	btVoxelShape* voxelWorld = new btVoxelShape(provider, btVector3(INT_MIN, INT_MIN, INT_MIN), btVector3(INT_MAX, INT_MAX, INT_MAX));
+	btVoxelShape* voxelWorld = new btVoxelShape(provider, btVector3(-BT_LARGE_FLOAT, -BT_LARGE_FLOAT, -BT_LARGE_FLOAT), btVector3(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT));
 		
 
 	//groundShape->initializePolyhedralFeatures();
