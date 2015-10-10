@@ -59,7 +59,7 @@ struct VoxelWorld : public btVoxelContentProvider
 		filledInfo.m_blocking = true;
 		filledInfo.m_voxelTypeId = 1;
 		filledInfo.m_tracable = true;
-		filledInfo.m_collisionShape = new btBoxShape((btVector3(btScalar(.5), btScalar(.5), btScalar(0.5))));
+		filledInfo.m_collisionShape = new btBoxShape((btVector3(btScalar(.25), btScalar(.25), btScalar(0.25))));
 		filledInfo.m_friction = 0.7;
 		filledInfo.m_restitution = 0.5;
 		filledInfo.m_rollingFriction = 0.7;
@@ -67,7 +67,7 @@ struct VoxelWorld : public btVoxelContentProvider
 	}
 
 	btVoxelInfo getVoxel(int x, int y, int z) const {
-		if (y > 0) {
+		if (y > 0 || abs(x) > 5 || abs(z) > 5) {
 			return emptyInfo;
 		}
 		return filledInfo;
@@ -88,6 +88,7 @@ void VoxelDemo::initPhysics()
 	btVoxelContentProvider* provider = new VoxelWorld();
 
 	btVoxelShape* voxelWorld = new btVoxelShape(provider, btVector3(-BT_LARGE_FLOAT, -BT_LARGE_FLOAT, -BT_LARGE_FLOAT), btVector3(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT));
+	voxelWorld->setLocalScaling(btVector3(0.5, 0.5, 0.5));
 		
 
 	//groundShape->initializePolyhedralFeatures();
@@ -98,7 +99,6 @@ void VoxelDemo::initPhysics()
 	btTransform groundTransform;
 	groundTransform.setIdentity();
 	groundTransform.setOrigin(btVector3(0,0,0));
-
 	{
 		btScalar mass(0.);
 		createRigidBody(mass, groundTransform, voxelWorld, btVector4(0,0,0,0));
