@@ -25,16 +25,16 @@ ContactAddedCallback		gContactAddedCallback=0;
 
 
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
-inline btScalar	calculateCombinedRollingFriction(const btCollisionObjectWrapper* body0,const btCollisionObjectWrapper* body1)
+btScalar btManifoldResult::calculateCombinedRollingFriction(const btCollisionObject* body0,const btCollisionObject* body1)
 {
-    btScalar friction = body0->getRollingFriction() * body1->getRollingFriction();
+    btScalar friction = body0->getRollingFriction() * body1->getFriction() + body1->getRollingFriction() * body0->getFriction();
 
     const btScalar MAX_FRICTION  = btScalar(10.);
-	if (friction < -MAX_FRICTION)
-		friction = -MAX_FRICTION;
-	if (friction > MAX_FRICTION)
-		friction = MAX_FRICTION;
-	return friction;
+    if (friction < -MAX_FRICTION)
+        friction = -MAX_FRICTION;
+    if (friction > MAX_FRICTION)
+        friction = MAX_FRICTION;
+    return friction;
 
 }
 

@@ -183,14 +183,10 @@ public:
 	struct	LocalRayResult
 	{
 		LocalRayResult(const btCollisionObject*	collisionObject,
-			const btCollisionShape* collisionShape,
-			const void * userData,
-			LocalShapeInfo*	localShapeInfo,
-			const btVector3&		hitNormalLocal,
-			btScalar hitFraction)
+					   LocalShapeInfo*	localShapeInfo,
+					   const btVector3&		hitNormalLocal,
+					   btScalar hitFraction)
 		:m_collisionObject(collisionObject),
-		m_collisionShape(collisionShape),
-		m_userPointer(userData),
 		m_localShapeInfo(localShapeInfo),
 		m_hitNormalLocal(hitNormalLocal),
 		m_hitFraction(hitFraction)

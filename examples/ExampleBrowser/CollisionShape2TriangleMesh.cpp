@@ -184,6 +184,10 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 						CollisionShape2TriangleMesh(compound->getChildShape(i),childWorldTrans,vertexPositions,vertexNormals,indicesOut);
 					}
 				}
+				if(collisionShape->isVoxel())
+				{
+					// Probably can't do anything here, but isn't an error
+				}
 				else
 				{
 					btAssert(0);

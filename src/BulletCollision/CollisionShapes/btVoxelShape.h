@@ -100,7 +100,7 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-	explicit btVoxelShape(btVoxelContentProvider* contentProvider, btVector3& aabbMin, btVector3& aabbMax);
+	explicit btVoxelShape(btVoxelContentProvider* contentProvider,const btVector3& aabbMin,const btVector3& aabbMax);
 
 	virtual ~btVoxelShape();
 	
