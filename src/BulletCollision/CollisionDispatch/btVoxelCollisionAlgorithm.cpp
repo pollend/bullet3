@@ -104,7 +104,7 @@ void btVoxelCollisionAlgorithm::processCollision (const btCollisionObjectWrapper
                     m_voxelCollisionInfo[newIndex].position.x = x;
                     m_voxelCollisionInfo[newIndex].position.y = y;
                     m_voxelCollisionInfo[newIndex].position.z = z;
-                    m_voxelCollisionInfo[newIndex].algorithm = 0;
+                    m_voxelCollisionInfo[newIndex].algorithm = nullptr;
                 }
             }
         }
@@ -139,7 +139,7 @@ void btVoxelCollisionAlgorithm::processCollision (const btCollisionObjectWrapper
                 info.m_collisionShape->getShapeType() != collisionInfo.shapeType) {
                 collisionInfo.algorithm->~btCollisionAlgorithm();
                 m_dispatcher->freeCollisionAlgorithm(collisionInfo.algorithm);
-                collisionInfo.algorithm = 0;
+                collisionInfo.algorithm = nullptr;
             }
         }
         if (info.m_blocking) {
@@ -150,6 +150,11 @@ void btVoxelCollisionAlgorithm::processCollision (const btCollisionObjectWrapper
                                               collisionInfo.position.z * scale.z() + info.m_collisionOffset.z()));
             btCollisionObjectWrapper voxelWrap(colObjWrap, info.m_collisionShape, colObjWrap->getCollisionObject(),
                                                voxelTranform, -1, -1);
+            btCollisionObject* tmpCollision = const_cast<btCollisionObject*>(colObjWrap->getCollisionObject());
+            tmpCollision->setFriction(info.m_friction);
+            tmpCollision->setRestitution(info.m_restitution);
+            tmpCollision->setRollingFriction(info.m_rollingFriction);
+
 
             // Add new algorithm if necessary
             if (!collisionInfo.algorithm) {
@@ -159,7 +164,7 @@ void btVoxelCollisionAlgorithm::processCollision (const btCollisionObjectWrapper
                 collisionInfo.voxelTypeId = info.m_voxelTypeId;
             }
 
-            const btCollisionObjectWrapper *tmpWrap = 0;
+            const btCollisionObjectWrapper *tmpWrap = nullptr;
             if (resultOut->getBody0Internal() == colObjWrap->getCollisionObject()) {
                 tmpWrap = resultOut->getBody0Wrap();
                 resultOut->setBody0Wrap(&voxelWrap);
