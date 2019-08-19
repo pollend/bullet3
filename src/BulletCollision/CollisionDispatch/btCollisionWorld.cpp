@@ -13,6 +13,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <BulletCollision/CollisionShapes/btVoxelShape.h>
 #include "btCollisionWorld.h"
 #include "btCollisionDispatcher.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
@@ -414,9 +415,7 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 				triangleMesh->performRaycast(&rcb, rayFromLocalScaled, rayToLocalScaled);
 			}
-			else if (((resultCallback.m_flags&btTriangleRaycastCallback::kF_DisableHeightfieldAccelerator)==0) 
-				&& collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE 
-				)
+			else if (((resultCallback.m_flags & btTriangleRaycastCallback::kF_DisableHeightfieldAccelerator) == 0) && collisionShape->getShapeType() == TERRAIN_SHAPE_PROXYTYPE)
 			{
 				///optimized version for btHeightfieldTerrainShape
 				btHeightfieldTerrainShape* heightField = (btHeightfieldTerrainShape*)collisionShape;
@@ -593,6 +592,79 @@ void btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans, co
 					{
 						rayCB.ProcessLeaf(i);
 					}
+				}
+			}
+			else if (collisionShape->isVoxel())
+			{
+				const btVoxelShape* voxelShape = static_cast<const btVoxelShape*>(collisionShape);
+				const btVoxelContentProvider* contentProvider = voxelShape->getContentProvider();
+
+				int currentVox[3];
+				btVector3 distance;
+				btVector3 delta;
+				btVector3 tNext;
+				int steps = 1;
+				int increments[3];
+
+				for (int i = 0; i < 3; ++i)
+				{
+					currentVox[i] = static_cast<int>(floor(rayFromTrans.getOrigin()[i] + 0.5f));
+					distance[i] = btFabs(rayToTrans.getOrigin()[i] - rayFromTrans.getOrigin()[i]);
+					delta[i] = 1.0f / distance[i];
+
+					if (rayToTrans.getOrigin()[i] > rayFromTrans.getOrigin()[i])
+					{
+						increments[i] = 1;
+						steps += static_cast<int>(floor(rayToTrans.getOrigin()[i] + 0.5f)) - currentVox[i];
+						tNext[i] = (currentVox[i] + 0.5f - rayFromTrans.getOrigin()[i]) * delta[i];
+					}
+					else if (rayToTrans.getOrigin()[i] < rayFromTrans.getOrigin()[i])
+					{
+						increments[i] = -1;
+						steps += currentVox[i] - static_cast<int>(floor(rayToTrans.getOrigin()[i] + 0.5f));
+						tNext[i] = (rayFromTrans.getOrigin()[i] - currentVox[i] + 0.5f) * delta[i];
+					}
+					else
+					{
+						increments[i] = 0;
+						tNext[i] = delta[i];
+					}
+				}
+
+				for (; steps > 0; --steps)
+				{
+					btVoxelInfo childInfo = contentProvider->getVoxel(currentVox[0], currentVox[1], currentVox[2]);
+					if (childInfo.m_tracable)
+					{
+						btVector3 pos(static_cast<btScalar>(currentVox[0]), static_cast<btScalar>(currentVox[1]),
+									  static_cast<btScalar>(currentVox[2]));
+						pos += childInfo.m_collisionOffset;
+
+						btTransform childTransform(btQuaternion(0, 0, 0, 1), pos);
+
+						btCollisionObjectWrapper tmpOb(collisionObjectWrap, childInfo.m_collisionShape,
+													   collisionObjectWrap->getCollisionObject(), childTransform, -1,
+													   -1);
+
+						rayTestSingleInternal(rayFromTrans, rayToTrans,
+											  &tmpOb,
+											  resultCallback);
+
+						// Early out if hit - need to consider this (what if user wants to go deeper)
+						break;
+					}
+
+					int next;
+					if (tNext[0] < tNext[1])
+					{
+						next = (tNext[0] < tNext[2]) ? 0 : 2;
+					}
+					else
+					{
+						next = (tNext[1] < tNext[2]) ? 1 : 2;
+					}
+					tNext[next] += delta[next];
+					currentVox[next] += increments[next];
 				}
 			}
 		}
@@ -920,6 +992,45 @@ void btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 						const btCollisionShape* childCollisionShape = compoundShape->getChildShape(i);
 						btTransform childTrans = compoundShape->getChildTransform(i);
 						callback.ProcessChild(i, childTrans, childCollisionShape);
+					}
+				}
+			}
+			else {
+				if (collisionShape->isVoxel()) {
+					const btVoxelShape* voxelShape = static_cast<const btVoxelShape*>(collisionShape);
+					const btVoxelContentProvider* contentProvider = voxelShape->getContentProvider();
+
+					btVector3 minAABBfrom;
+					btVector3 maxAABBfrom;
+					btVector3 minAABBto;
+					btVector3 maxAABBto;
+					castShape->getAabb(convexFromTrans, minAABBfrom, maxAABBfrom);
+					castShape->getAabb(convexToTrans, minAABBto, maxAABBto);
+
+					minAABBfrom.setMin(minAABBto);
+					maxAABBfrom.setMax(maxAABBto);
+					
+					int min[3];
+					int max[3];
+					for (int i = 0; i < 3; ++i) {
+						min[i] = static_cast <int> (floor(minAABBfrom[i] + 0.5f));
+						max[i] = static_cast <int> (floor(maxAABBfrom[i] + 0.5f));
+					}
+
+					for (int x = min[0]; x <= max[0]; ++x) {
+						for (int y = min[1]; y <= max[1]; ++y) {
+							for (int z = min[2]; z <= max[2]; ++z) {
+								btVoxelInfo info = contentProvider->getVoxel(x, y, z);
+								if (info.m_blocking) {
+									btVector3 pos(static_cast <btScalar>(x), static_cast <btScalar> (y), static_cast<btScalar> (z));
+									pos += info.m_collisionOffset;
+									btTransform voxelTransform(btQuaternion(0, 0, 0, 1), pos);
+									btCollisionObjectWrapper tmpOb(colObjWrap, info.m_collisionShape, colObjWrap->getCollisionObject(), voxelTransform, -1, -1);
+									
+									objectQuerySingleInternal(castShape, convexFromTrans, convexToTrans, &tmpOb, resultCallback, allowedPenetration);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1625,3 +1736,4 @@ void btCollisionWorld::serialize(btSerializer* serializer)
 
 	serializer->finishSerialization();
 }
+
