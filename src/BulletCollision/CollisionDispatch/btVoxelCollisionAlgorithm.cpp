@@ -4,8 +4,8 @@ Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it freely,
 subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
@@ -34,7 +34,7 @@ m_sharedManifold(ci.m_manifold) {
     const btCollisionObjectWrapper *colObjWrap = m_isSwapped ? body1Wrap : body0Wrap;
             btAssert (colObjWrap->getCollisionShape()->isVoxel());
 
-    const btVoxelShape *voxelShape = static_cast<const btVoxelShape *>(colObjWrap->getCollisionShape());
+//    const btVoxelShape *voxelShape = static_cast<const btVoxelShape *>(colObjWrap->getCollisionShape());
 }
 
 btVoxelCollisionAlgorithm::~btVoxelCollisionAlgorithm()
@@ -131,8 +131,12 @@ void btVoxelCollisionAlgorithm::processCollision (const btCollisionObjectWrapper
     btVoxelContentProvider *contentProvider = voxelShape->getContentProvider();
     for (i = 0; i < numChildren; ++i) {
         btVoxelCollisionInfo &collisionInfo = m_voxelCollisionInfo[i];
-        btVoxelInfo info = contentProvider->getVoxel(collisionInfo.position.x, collisionInfo.position.y,
-                                                     collisionInfo.position.z);
+        btVoxelInfo info;
+        contentProvider->getVoxel(collisionInfo.position.x, collisionInfo.position.y,collisionInfo.position.z,info);
+        info.m_x = collisionInfo.position.x;
+        info.m_y = collisionInfo.position.y;
+        info.m_z = collisionInfo.position.z;
+
         if (collisionInfo.algorithm) {
             // Remove old algorithm if necessary
             if (!info.m_blocking || info.m_voxelTypeId != collisionInfo.voxelTypeId ||

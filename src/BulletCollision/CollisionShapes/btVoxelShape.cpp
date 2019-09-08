@@ -37,7 +37,6 @@ void btVoxelShape::getAabb(const btTransform& trans,btVector3& aabbMin,btVector3
 	btVector3 localCenter = btScalar(0.5)*(m_localAabbMax+m_localAabbMin);
 	
 	localHalfExtents += btVector3(getMargin(),getMargin(),getMargin());
-		
 
 	btMatrix3x3 abs_b = trans.getBasis().absolute();  
 
